@@ -1,25 +1,39 @@
-import logo from './logo.svg';
 import './App.css';
+import { useEffect } from 'react';
 
-function App() {
+var target = document.getElementById('target');
+
+function appendLocation(location, verb) {
+  verb = verb || 'updated';
+  var newLocation = document.createElement('p');
+  newLocation.innerHTML = 'Location ' + verb + ': ' + location.coords.latitude + ', ' + location.coords.longitude + '';
+  target.appendChild(newLocation);
+}
+
+export default function App() {
+
+  useEffect(() => {
+    var watchId;
+
+    if ('geolocation' in navigator) {
+      document.getElementById('askButton').addEventListener('click', function () {
+        navigator.geolocation.getCurrentPosition(function (location) {
+          appendLocation(location, 'fetched');
+        });
+        watchId = navigator.geolocation.watchPosition(appendLocation);
+      });
+    } else {
+      target.innerText = 'Geolocation API not supported.';
+    };
+  },[])
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <button id="askButton">Ask for location</button>
+
+        <div id="target"></div>
       </header>
     </div>
   );
-}
-
-export default App;
+};
